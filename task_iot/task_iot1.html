@@ -1,0 +1,148 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset= "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-1.0">
+    <title> task_iot1 </title>
+    <style> 
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eadd90;
+      display: flex;
+      flex-direction: column; 
+      align-items: center; 
+      margin: 0;
+      padding: 0;
+    }
+  
+    form {
+      background-color: #6b4da2;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 500px;
+      margin-top: 8%;
+    }
+  
+    label {
+      display: block;
+      padding-bottom: 8px;
+      padding-top: 8px;
+      font-style: oblique;
+      font-size: larger;
+    }
+  
+    input {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+  
+    #btn {
+      background-color: #04AA6D;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      text-align: center;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+  
+    table {
+      width: 500px;  
+      margin-top: 20px;  
+      border-collapse: collapse;
+      background-color: white;
+    }
+  
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+  
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+  </head>
+  
+  
+ </head>
+
+ <body>
+  <div> 
+ <form method="post" action = "/">
+
+    <h1>Registeration form</h1>
+    <label for="username" class="labels">Name</label>
+    <input type ="text" id="username" placeholder="Enter username" required>
+    <label for="email" class="labels">Email</label>
+    <input type ="text" id="email" placeholder="Enter email" required>
+    <label for="password" class="labels">Password</label>
+    <input type ="password" id="password" placeholder="Enter  password" required>
+    <button type="submit" id="btn">submit</button>
+  
+</form>
+</div>
+<table id="dataList">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Password</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Data rows will go here -->
+  </tbody>
+</table>
+</body>
+<script>
+  document.querySelector("#btn").addEventListener("click", function(e) {
+  // Prevent the form from submitting the traditional way
+  e.preventDefault();
+
+  let e1 = document.querySelector("#username").value;
+  let e2 = document.querySelector("#email").value;
+  let e3 = document.querySelector("#password").value;
+
+  const userData = JSON.stringify({e1, e2, e3});
+
+  const host = location.origin.replace("/^http/", "ws");
+  const wss = new WebSocket(host);
+
+  wss.onopen = () => {
+    console.log("connected");
+    wss.send(userData);
+  };
+
+      document.getElementById("username").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+
+  wss.onmessage = (ev) => {
+     console.log("Message from server: ", ev.data);
+      const serverData = JSON.parse(ev.data);  // Assuming the server sends a JSON string
+      const tableBody = document.querySelector("#dataList tbody");
+
+      const newRow = document.createElement("tr");
+      const tdUsername = document.createElement("td");
+      tdUsername.textContent = serverData.e1;  // Username
+      const tdEmail = document.createElement("td");
+      tdEmail.textContent = serverData.e2;  // Email
+      const tdPassword = document.createElement("td");
+      tdPassword.textContent = serverData.e3;  // Password
+
+      newRow.appendChild(tdUsername);
+      newRow.appendChild(tdEmail);
+      newRow.appendChild(tdPassword);
+
+      tableBody.appendChild(newRow);
+    };
+
+});
+</script>
+
+
+ </html>
